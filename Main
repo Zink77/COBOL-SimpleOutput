@@ -1,0 +1,208 @@
+
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. CS370-PROGRAM1-JJ.
+       AUTHOR.     JORDAN JOHNSON.
+
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       SOURCE-COMPUTER.    IBMPC.
+       OBJECT-COMPUTER.    IBMPC.
+
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+
+
+           SELECT CURRENT-TRUCK-INVENTORY
+               ASSIGN TO 'PR1FA22-Pizza.txt'
+               ORGANIZATION IS LINE SEQUENTIAL.
+
+
+           SELECT CURRENT-TRUCK-REPORT
+               ASSIGN TO PRINTER 'TRUCK-REPORT.TXT'.
+
+      *
+
+       DATA DIVISION.
+       FILE SECTION.
+
+       FD  CURRENT-TRUCK-INVENTORY
+           RECORD CONTAINS 40 CHARACTERS.
+       01  TRUCK-REC.
+           05  TRUCK-ID             PIC X(5).
+           05  EMPLOYEE-ID          PIC X(4).
+           05  EMPLOYEE-NAME        PIC X(20).
+           05  ITEM-ID              PIC A(2).
+           05  STOCK-NUM            PIC 9(3).
+           05  PURCHASE-PRICE       PIC 9(3).
+           05  SELLING-PRICE        PIC 9(3).
+      *
+       FD    CURRENT-TRUCK-REPORT
+             RECORD CONTAINS 80 CHARACTERS.
+       01    TRUCK-REPORT-REC            PIC X(80).
+
+
+       WORKING-STORAGE SECTION.
+
+       01    WS-WORK-AREAS.
+             05    ARE-THERE-MORE-RECORDS    PIC X(3) VALUE 'YES'.
+
+       01 WS-Date.
+             05 WS-Run-Year Pic 9999.
+             05 WS-Run-Month Pic 99.
+             05 WS-Run-Day Pic 99.
+
+       01  REPORT-FIELDS.
+           05  PROPER-SPACING          PIC S9        VALUE +3.
+
+      *************************OUTPUT AREA*****************************
+       01 REPORT-HEADER1.
+           05 FILLER          PIC XX    VALUE SPACES.
+           05 RH-DATE.
+              10 Run-Year     Pic 9999.
+              10 FILLER       Pic X Value '/'.
+              10 Run-Month    Pic 99.
+              10 FILLER       Pic X Value '/'.
+              10 Run-Day      Pic 99.
+           05 FILLER          PIC X(23) VALUE SPACES.
+           05 FILLER          PIC X(13) VALUE 'ROLLING PIZZA'.
+           05 FILLER          PIC X(19) VALUE SPACES.
+           05 FILLER          PIC X(3) VALUE 'JAJ'.
+           05 FILLER          PIC X(9) VALUE SPACES.
+
+       01 REPORT-HEADER2.
+           05 FILLER          PIC X(33) VALUE SPACES.
+           05 FILLER          PIC X(16) VALUE 'INVENTORY REPORT'.
+
+       01 REPORT-HEADER3.
+           05 FILLER          PIC X(5) VALUE SPACES.
+           05 FILLER          PIC X(5) VALUE 'TRUCK'.
+           05 FILLER          PIC X(5) VALUE SPACES.
+           05 FILLER          PIC X(8) VALUE 'EMPLOYEE'.
+           05 FILLER          PIC X(5) VALUE SPACES.
+           05 FILLER          PIC X(4) VALUE 'ITEM'.
+           05 FILLER          PIC X(5) VALUE SPACES.
+           05 FILLER          PIC X(6) VALUE 'NUM IN'.
+           05 FILLER          PIC X(5) VALUE SPACES.
+           05 FILLER          PIC X(8) VALUE 'PURCHASE'.
+           05 FILLER          PIC X(5) VALUE SPACES.
+           05 FILLER          PIC X(7) VALUE 'SELLING'.
+           05 FILLER          PIC X(11) VALUE SPACES.
+
+       01 REPORT-HEADER4.
+           05 FILLER          PIC X(6) VALUE SPACES.
+           05 FILLER          PIC X(2) VALUE 'ID'.
+           05 FILLER          PIC X(10) VALUE SPACES.
+           05 FILLER          PIC X(2) VALUE 'ID'.
+           05 FILLER          PIC X(9) VALUE SPACES.
+           05 FILLER          PIC X(2) VALUE 'ID'.
+           05 FILLER          PIC X(6) VALUE SPACES.
+           05 FILLER          PIC X(5) VALUE 'STOCK'.
+           05 FILLER          PIC X(7) VALUE SPACES.
+           05 FILLER          PIC X(5) VALUE 'PRICE'.
+           05 FILLER          PIC X(8) VALUE SPACES.
+           05 FILLER          PIC X(5) VALUE 'PRICE'.
+           05 FILLER          PIC X(12) VALUE SPACES.
+
+       01 REPORT-BLANK.
+           05 FILLER          PIC X(80) VALUE SPACES.
+
+       01 DETAIL-LINE.
+           05 FILLER             PIC X(5) VALUE SPACES.
+           05 DL-TRUCK-ID        PIC X(5).
+           05 FILLER             PIC X(7) VALUE SPACES.
+           05 DL-EMPLOYEE-ID     PIC X(4).
+           05 FILLER             PIC X(8) VALUE SPACES.
+           05 DL-ITEM-ID         PIC A(2).
+           05 FILLER             PIC X(7) VALUE SPACES.
+           05 DL-STOCK-NUM       PIC 9(3).
+           05 FILLER             PIC X(9) VALUE SPACES.
+           05 DL-PURCHASE-PRICE  PIC 9(3).
+           05 FILLER             PIC X(10) VALUE SPACES.
+           05 DL-SELLING-PRICE   PIC 9(3).
+           05 FILLER             PIC X(13) VALUE SPACES.
+
+
+       PROCEDURE DIVISION.
+
+       100-MAIN-MODULE.
+
+           PERFORM 125-HOUSEKEEPING
+           PERFORM 150-READ-RECORDS
+           PERFORM 250-CLOSE-ROUTINE
+
+           .
+
+       125-HOUSEKEEPING.
+
+
+           OPEN    INPUT     CURRENT-TRUCK-INVENTORY
+                   OUTPUT    CURRENT-TRUCK-REPORT
+
+           Move Function Current-Date To WS-Date
+                   MOVE WS-RUN-YEAR      TO RUN-YEAR
+                   MOVE WS-RUN-MONTH     TO RUN-MONTH
+                   MOVE WS-RUN-DAY       TO RUN-DAY
+
+           MOVE REPORT-HEADER1 TO TRUCK-REPORT-REC
+           MOVE 1 TO PROPER-SPACING
+           WRITE TRUCK-REPORT-REC
+                   AFTER ADVANCING PROPER-SPACING
+
+           MOVE REPORT-HEADER2 TO TRUCK-REPORT-REC
+           MOVE 2 TO PROPER-SPACING
+           WRITE TRUCK-REPORT-REC
+                   AFTER ADVANCING PROPER-SPACING
+
+           MOVE REPORT-HEADER3 TO TRUCK-REPORT-REC
+           MOVE 3 TO PROPER-SPACING
+           WRITE TRUCK-REPORT-REC
+                   AFTER ADVANCING PROPER-SPACING
+
+           MOVE REPORT-HEADER4 TO TRUCK-REPORT-REC
+           MOVE 1 TO PROPER-SPACING
+           WRITE TRUCK-REPORT-REC
+                   AFTER ADVANCING PROPER-SPACING
+
+           Move 2 to PROPER-SPACING
+
+           .
+      *
+       150-READ-RECORDS.
+
+             PERFORM UNTIL ARE-THERE-MORE-RECORDS = 'NO'
+                  READ CURRENT-TRUCK-INVENTORY
+                      AT END
+                          MOVE 'NO' TO ARE-THERE-MORE-RECORDS
+                      NOT AT END
+                          PERFORM 200-PROCESS-RTN
+                  END-READ
+              END-PERFORM
+
+           .
+      *
+       200-PROCESS-RTN.
+
+              MOVE TRUCK-ID         TO DL-TRUCK-ID
+              MOVE EMPLOYEE-ID      TO DL-EMPLOYEE-ID
+              MOVE ITEM-ID          TO DL-ITEM-ID
+              MOVE STOCK-NUM        TO DL-STOCK-NUM
+              MOVE PURCHASE-PRICE   TO DL-PURCHASE-PRICE
+              MOVE SELLING-PRICE    TO DL-SELLING-PRICE
+
+              MOVE DETAIL-LINE TO TRUCK-REPORT-REC
+
+              WRITE TRUCK-REPORT-REC
+                     AFTER ADVANCING PROPER-SPACING
+
+              MOVE 1 TO PROPER-SPACING
+
+           .
+
+       250-CLOSE-ROUTINE.
+
+           CLOSE CURRENT-TRUCK-REPORT
+                 CURRENT-TRUCK-INVENTORY
+
+           STOP RUN.
+
+       END PROGRAM CS370-PROGRAM1-JJ.
